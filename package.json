@@ -20,7 +20,8 @@
   },
   "homepage": "https://github.com/marselo05/bk-express-avanzado#readme",
   "dependencies": {
-    "express": "^4.17.2"
+    "express": "^4.17.2",
+    "multer": "^1.4.4"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"

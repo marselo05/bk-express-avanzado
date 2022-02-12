@@ -1,16 +1,29 @@
-const { json } = require('express');
 const express   = require('express');
 const { Router } = express;
+let multer          = require('multer');
 const app       = express();
 const PORT      = 8080;
 let productos   = [];
 
 app.use(express.json());
 app.use(express.urlencoded({extended: true}))
+
+app.use('/folder', express.static('imagenes'));
 app.use(express.static('public'));
 
 let routerProductos = new Router();
 
+let storage =  multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "uploads"); // callback error
+    },
+    filename: (req, file, cb ) => {
+        cb(null, `${Date.now()} - ${file.originalname}`);
+        //${path.extname(file.originalname)}
+    }
+})
+
+let uploadMiddleware = multer({storage})
 // Express Avanzado
 // PRODUCTOS
     routerProductos.get('', (req, res, next) => {
@@ -37,13 +50,18 @@ let routerProductos = new Router();
         })
     }); // devuelve un producto según su id
     
-    routerProductos.post('/', (req, res, next) => {
+    routerProductos.post('/', uploadMiddleware.single('thumbnail'), (req, res, next) => {
         
+        const file = req.file;
+        if (!file) 
+            new Error("Error en la carga de la imagen");
+            
         // ID producto
         let pos = 1;
             pos = ( productos.length == 0 ) ? 1 : (productos.length + 1);
         
-            req.body.id = pos; 
+            req.body.id         = pos; 
+            req.body.thumbnail  = req.file.originalname; 
             productos.push( req.body );
 
         res.json({responce: productos});
